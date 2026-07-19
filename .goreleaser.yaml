@@ -54,6 +54,7 @@ winget:
       name: goreleaserbot
       email: bot@goreleaser.com
     commit_msg_template: "Winget update for {{ .ProjectName }} version {{ .Tag }}"
+    short_description: "Switch between multiple git accounts"
     description: "Quickly switch between multiple git accounts across multiple hubs."
     license: "MIT"
     homepage: "https://github.com/jokot/git-swap"
