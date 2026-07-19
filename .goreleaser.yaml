@@ -74,7 +74,7 @@ winget:
           owner: microsoft
           name: winget-pkgs
           branch: master
-    path: manifests/j/jokot/git-swap/
+    path: "manifests/j/jokot/git-swap/{{ .Version }}"
     skip_upload: auto
 
 changelog:
