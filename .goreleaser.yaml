@@ -62,6 +62,12 @@ winget:
       name: winget-pkgs
       branch: "{{ .ProjectName }}-{{ .Version }}"
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      pull_request:
+        enabled: true
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
     path: manifests/j/jokot/git-swap/
     skip_upload: auto
 
