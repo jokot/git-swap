@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -32,6 +34,74 @@ func (p Profile) AuthMode() string {
 
 type Config struct {
 	Profiles []Profile `yaml:"profiles"`
+}
+
+// SetDefaults populates omitted fields and expands ~ in paths.
+func (p *Profile) SetDefaults() {
+	if p.Auth == "" {
+		p.Auth = "ssh"
+	}
+	if p.Host == "" {
+		p.Host = p.Hub
+		if p.Host != "github" && p.Host != "gitlab" && p.Host != "azure" {
+			// keep custom host as is
+		} else {
+			if p.Host == "azure" {
+				p.Host = "dev.azure.com"
+			} else {
+				p.Host = p.Host + ".com"
+			}
+		}
+	}
+	p.SSHKey = expandTilde(p.SSHKey)
+	p.SigningKey = expandTilde(p.SigningKey)
+}
+
+func expandTilde(path string) string {
+	if path == "" {
+		return ""
+	}
+	if !strings.HasPrefix(path, "~") {
+		return path
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path
+	}
+	// ~ or ~/path or ~\path
+	if len(path) == 1 {
+		return home
+	}
+	if path[1] == '/' || path[1] == '\\' {
+		return filepath.Join(home, path[2:])
+	}
+	// ~user/path is unsupported, return as is
+	return path
+}
+
+// Validate checks required fields.
+func (p *Profile) Validate() error {
+	if p.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+	if p.Hub == "" {
+		return fmt.Errorf("hub is required")
+	}
+	if p.GitEmail == "" {
+		return fmt.Errorf("git_email is required")
+	}
+	if p.Auth != "ssh" && p.Auth != "https" {
+		return fmt.Errorf("auth must be 'ssh' or 'https'")
+	}
+	if p.Auth == "https" {
+		if p.Username == "" {
+			return fmt.Errorf("username is required for https auth")
+		}
+		if p.TokenEnv == "" && p.TokenFile == "" {
+			return fmt.Errorf("token_env or token_file is required for https auth")
+		}
+	}
+	return nil
 }
 
 func (c *Config) Find(name string) (Profile, bool) {

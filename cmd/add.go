@@ -18,23 +18,12 @@ func newAddCmd(app *App) *cobra.Command {
 			if p.GitEmail == "" {
 				return fmt.Errorf("--email is required")
 			}
-			if p.Auth == "" {
-				p.Auth = "ssh"
+			p.SetDefaults()
+
+			if err := p.Validate(); err != nil {
+				return err
 			}
-			if p.Auth != "ssh" && p.Auth != "https" {
-				return fmt.Errorf("--auth must be 'ssh' or 'https'")
-			}
-			if p.Auth == "https" {
-				if p.Username == "" {
-					return fmt.Errorf("--username is required for --auth https")
-				}
-				if p.TokenEnv == "" && p.TokenFile == "" {
-					return fmt.Errorf("provide --token-env or --token-file for --auth https")
-				}
-			}
-			if p.Host == "" {
-				p.Host = defaultHost(p.Hub, p.Auth)
-			}
+
 			cfg, err := app.load()
 			if err != nil {
 				return err
