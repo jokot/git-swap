@@ -160,7 +160,15 @@ Adding only SAVES a profile; nothing changes until you switch:
 
     git-swap use <name>              # machine-wide (global)
     git-swap use <name> --local      # current repo only
-    git-swap use <name> --local --rewrite-remote owner/repo   # + fix origin
+
+When using an SSH account, git-swap will prompt you to automatically set an `insteadOf` alias. This intercepts Git URLs (like `git@github.com:`) and routes them through the correct SSH key alias (`github.com-<name>`) so your pushes just work without manually changing remotes:
+
+    Update remote alias (insteadOf) for this account?
+      [l] Local repo only (default)
+      [g] Global (all repos)
+      [s] Skip
+
+(Passing `--local` skips the prompt and applies the alias locally automatically).
 
 Confirm what's active:
 
