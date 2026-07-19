@@ -1,6 +1,8 @@
 package gitcfg
 
 import (
+	"strings"
+
 	"github.com/jokot/git-swap/internal/config"
 	"github.com/jokot/git-swap/internal/run"
 )
@@ -36,7 +38,13 @@ func Current(r run.Runner, scopeLocal bool) (name, email string) {
 	if scopeLocal {
 		scope = "--local"
 	}
-	name, _ = r.Run("git", "config", scope, "user.name")
-	email, _ = r.Run("git", "config", scope, "user.email")
-	return name, email
+	name, errName := r.Run("git", "config", scope, "user.name")
+	if errName != nil {
+		name = ""
+	}
+	email, errEmail := r.Run("git", "config", scope, "user.email")
+	if errEmail != nil {
+		email = ""
+	}
+	return strings.TrimSpace(name), strings.TrimSpace(email)
 }
