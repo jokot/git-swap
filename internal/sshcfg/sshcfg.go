@@ -23,6 +23,17 @@ func AliasFor(p config.Profile) string {
 // that declare an SSHKey. Profiles without a key are skipped.
 func RenderBlock(profiles []config.Profile) string {
 	var b strings.Builder
+	var hasSSH bool
+	for _, p := range profiles {
+		if p.SSHKey != "" && p.Host != "" {
+			hasSSH = true
+			break
+		}
+	}
+	if !hasSSH {
+		return ""
+	}
+
 	b.WriteString(beginMarker + "\n")
 	for _, p := range profiles {
 		if p.SSHKey == "" || p.Host == "" {
@@ -40,6 +51,7 @@ func RenderBlock(profiles []config.Profile) string {
 
 // Splice replaces an existing managed block in `existing` with `block`,
 // or appends `block` if no managed block is present. User content is preserved.
+// If `block` is empty, the managed block is completely removed.
 func Splice(existing, block string) string {
 	start := strings.Index(existing, beginMarker)
 	end := strings.Index(existing, endMarker)
@@ -48,8 +60,18 @@ func Splice(existing, block string) string {
 		// consume a trailing newline after the end marker if present
 		tail := existing[end:]
 		tail = strings.TrimPrefix(tail, "\n")
+		
 		before := existing[:start]
+		// if we are removing the block completely, consume a trailing newline before it too
+		if block == "" {
+			before = strings.TrimSuffix(before, "\n")
+			return before + "\n" + tail
+		}
+		
 		return before + strings.TrimSuffix(block, "\n") + "\n" + tail
+	}
+	if block == "" {
+		return existing
 	}
 	sep := ""
 	if existing != "" && !strings.HasSuffix(existing, "\n") {
