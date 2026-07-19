@@ -43,6 +43,54 @@ func newUseCmd(app *App) *cobra.Command {
 				}
 			}
 
+			// apply insteadOf configuration
+			if p.AuthMode() == "ssh" {
+				aliasHost := sshcfg.AliasFor(p)
+				originalHost := p.Host
+
+				// URL rewrite: url."git@<aliasHost>:".insteadOf "git@<host>:"
+				// E.g. url."git@github.com-personal:".insteadOf "git@github.com:"
+				insteadOfKey := fmt.Sprintf("url.git@%s:.insteadOf", aliasHost)
+				insteadOfVal := fmt.Sprintf("git@%s:", originalHost)
+
+				if local {
+					// local flag implies local insteadOf automatically
+					if _, err := app.Runner.Run("git", "config", "--local", insteadOfKey, insteadOfVal); err == nil {
+						fmt.Fprintf(cmd.OutOrStdout(), "  (set %s to %s --local)\n", insteadOfKey, insteadOfVal)
+					}
+				} else {
+					// global flag -> prompt
+					fmt.Fprintf(cmd.OutOrStdout(), "Update remote alias (insteadOf) for this account?\n")
+					fmt.Fprintf(cmd.OutOrStdout(), "  [l] Local repo only (default)\n")
+					fmt.Fprintf(cmd.OutOrStdout(), "  [g] Global (all repos)\n")
+					fmt.Fprintf(cmd.OutOrStdout(), "  [s] Skip\n")
+					fmt.Fprintf(cmd.OutOrStdout(), "Choice [l/g/s]: ")
+
+					var choice string
+					fmt.Scanln(&choice)
+					
+					scopeFlag := "--local"
+					switch choice {
+					case "g", "G":
+						scopeFlag = "--global"
+					case "s", "S":
+						scopeFlag = ""
+					default:
+						// blank or 'l' defaults to local
+						scopeFlag = "--local"
+					}
+
+					if scopeFlag != "" {
+						if _, err := app.Runner.Run("git", "config", scopeFlag, insteadOfKey, insteadOfVal); err == nil {
+							fmt.Fprintf(cmd.OutOrStdout(), "  (set %s to %s %s)\n", insteadOfKey, insteadOfVal, scopeFlag)
+						} else {
+							// If not in a git repo, --local will fail. Fall back gracefully.
+							fmt.Fprintf(cmd.OutOrStdout(), "  (failed to set %s - not a git repository?)\n", scopeFlag)
+						}
+					}
+				}
+			}
+
 			if rewriteRemote != "" {
 				url := remoteURL(p, rewriteRemote)
 				if url == "" {
