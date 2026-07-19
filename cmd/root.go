@@ -26,6 +26,7 @@ func NewRootCmd(app *App) *cobra.Command {
 		newImportCmd(app),
 		newListCmd(app),
 		newRemoveCmd(app),
+		newUninstallCmd(app),
 		newUseCmd(app),
 		newCurrentCmd(app),
 		newDoctorCmd(app),

@@ -49,7 +49,13 @@ git-swap supports two auth modes per account via `--auth`:
 ## Quickstart
 
 ```bash
-# SSH account (default)
+# Capture your current setup instantly
+git-swap import work
+
+# Or use the interactive wizard
+git-swap add
+
+# Or pass flags directly
 git-swap add personal --hub github --name "Jane Doe" --email jane@personal.com --ssh-key ~/.ssh/id_personal
 
 # A second SSH account on the SAME hub (with commit signing)
@@ -213,12 +219,24 @@ GOOD TO KNOW
 
 | Command | Purpose |
 |---------|---------|
-| `add <name>`    | Create or update a profile |
+| `import`        | Capture your current git identity into a profile (interactive) |
+| `add`           | Create or update a profile (interactive if no args) |
 | `list`          | List profiles (name, hub, auth, host, email, cred, sign) |
-| `use <name>`    | Switch identity + auth. `--local` for current repo, `--rewrite-remote <owner/repo>` to fix origin |
-| `current`       | Show active identity and which profile matches (`--local` for repo scope) |
+| `use <name>`    | Switch identity + auth. `--local` for current repo |
+| `current`       | Show active identity and which profile matches |
 | `doctor`        | Report missing SSH keys / unresolvable HTTPS tokens |
-| `remove <name>` | Delete a profile |
+| `remove <name>` | Delete a profile from the config |
+| `uninstall`     | Clean up config and SSH blocks before removing the CLI |
+
+## Uninstalling
+
+If you decide to stop using `git-swap`, you should clean up its configuration and the marker-delimited block it added to your `~/.ssh/config` before deleting the binary. 
+
+Run:
+```bash
+git-swap uninstall
+```
+Then remove the binary via the package manager you used (`brew uninstall git-swap`, `winget uninstall jokot.git-swap`, or delete the executable).
 
 ## How multi-account-on-one-hub works
 
