@@ -13,11 +13,22 @@ import (
 
 func newImportCmd(app *App) *cobra.Command {
 	return &cobra.Command{
-		Use:   "import <name>",
+		Use:   "import [name]",
 		Short: "Capture the currently active git identity into a new profile",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			name := args[0]
+			reader := bufio.NewReader(os.Stdin)
+			
+			var name string
+			if len(args) > 0 {
+				name = args[0]
+			} else {
+				name = prompt(reader, cmd, "Profile name to save as? (e.g. work, personal): ", "")
+				if name == "" {
+					return fmt.Errorf("profile name is required")
+				}
+			}
+
 			cfg, err := app.load()
 			if err != nil {
 				return err
@@ -58,8 +69,6 @@ func newImportCmd(app *App) *cobra.Command {
 				pEmail = globalEmail
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "\n")
-
-			reader := bufio.NewReader(os.Stdin)
 
 			hub := prompt(reader, cmd, "Which hub? [github/gitlab/azure/custom] (default: github): ", "github")
 			auth := prompt(reader, cmd, "Auth mode? [ssh/https] (default: ssh): ", "ssh")

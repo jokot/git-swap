@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/jokot/git-swap/internal/config"
 	"github.com/spf13/cobra"
@@ -10,11 +13,54 @@ import (
 func newAddCmd(app *App) *cobra.Command {
 	var p config.Profile
 	c := &cobra.Command{
-		Use:   "add <name>",
+		Use:   "add [name]",
 		Short: "Add or update an account profile",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			p.Name = args[0]
+			if len(args) > 0 {
+				p.Name = args[0]
+			}
+
+			// Interactive mode if no name is provided (or if called with just `git-swap add`)
+			if p.Name == "" {
+				reader := bufio.NewReader(os.Stdin)
+				fmt.Fprintf(cmd.OutOrStdout(), "Interactive Add (leave blank for defaults)\n")
+				
+				p.Name = prompt(reader, cmd, "Profile name? (e.g. work, personal): ", "")
+				if p.Name == "" {
+					return fmt.Errorf("profile name is required")
+				}
+				
+				p.Hub = prompt(reader, cmd, "Which hub? [github/gitlab/azure/custom] (default: github): ", "github")
+				p.Auth = prompt(reader, cmd, "Auth mode? [ssh/https] (default: ssh): ", "ssh")
+				
+				p.GitName = prompt(reader, cmd, "Git user.name (commit name)?: ", "")
+				p.GitEmail = prompt(reader, cmd, "Git user.email (commit email)?: ", "")
+
+				if p.Auth == "ssh" {
+					p.SSHKey = prompt(reader, cmd, "Path to SSH private key? (e.g. ~/.ssh/id_ed25519): ", "")
+					if p.SSHKey == "" {
+						return fmt.Errorf("ssh key is required for ssh auth")
+					}
+					
+					signStr := prompt(reader, cmd, "Enable SSH commit signing? [y/N]: ", "N")
+					if strings.ToLower(signStr) == "y" || strings.ToLower(signStr) == "yes" {
+						p.Sign = true
+						p.SigningKey = prompt(reader, cmd, "Path to SSH public key for signing? (e.g. ~/.ssh/id_ed25519.pub): ", p.SSHKey+".pub")
+					}
+				} else if p.Auth == "https" {
+					p.Username = prompt(reader, cmd, "GitHub/GitLab username for credentials?: ", "")
+					if p.Username == "" {
+						return fmt.Errorf("username is required for https auth")
+					}
+					p.TokenEnv = prompt(reader, cmd, "Environment variable holding the PAT? (e.g. GH_PAT): ", "")
+					if p.TokenEnv == "" {
+						return fmt.Errorf("token env is required for https auth")
+					}
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "\n")
+			}
+
 			if p.GitEmail == "" {
 				return fmt.Errorf("--email is required")
 			}
