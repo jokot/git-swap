@@ -59,6 +59,9 @@ winget:
     short_description: "Switch between multiple git accounts"
     description: "Quickly switch between multiple git accounts across multiple hubs."
     license: "MIT"
+    license_url: "https://github.com/jokot/git-swap/blob/main/LICENSE"
+    publisher_url: "https://github.com/jokot"
+    publisher_support_url: "https://github.com/jokot/git-swap/issues"
     homepage: "https://github.com/jokot/git-swap"
     repository:
       owner: jokot
