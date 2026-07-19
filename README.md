@@ -21,6 +21,12 @@ Switching **identity** is separate from switching **credentials**. On a single h
 brew install jokot/tap/git-swap
 ```
 
+### Windows (Winget)
+
+```powershell
+winget install jokot.git-swap
+```
+
 ### Direct Download (macOS / Linux / Windows)
 Head to the [Releases page](https://github.com/jokot/git-swap/releases) and download the `.tar.gz` (Mac/Linux) or `.zip` (Windows) for your OS and architecture. 
 Extract it and put the `git-swap` executable somewhere in your `PATH` (like `/usr/local/bin`).
