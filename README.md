@@ -15,15 +15,17 @@ Switching **identity** is separate from switching **credentials**. On a single h
 
 ## Install
 
+### macOS / Linux (Homebrew)
+*Coming soon! (Requires a separate homebrew-tap repository).*
+
+### Direct Download (macOS / Linux / Windows)
+Head to the [Releases page](https://github.com/jokot/git-swap/releases) and download the `.tar.gz` (Mac/Linux) or `.zip` (Windows) for your OS and architecture. 
+Extract it and put the `git-swap` executable somewhere in your `PATH` (like `/usr/local/bin`).
+
+### From Source (Requires Go)
+
 ```bash
 go install github.com/jokot/git-swap@latest
-```
-
-Or build from source:
-
-```bash
-git clone https://github.com/jokot/git-swap && cd git-swap
-go build -o git-swap .
 ```
 
 Config lives at `~/.config/git-swap/config.yaml` (honors `XDG_CONFIG_HOME`). PATs are **never** stored there — only a reference (`token_env` / `token_file`) is.
