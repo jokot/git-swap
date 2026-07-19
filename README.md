@@ -28,8 +28,18 @@ winget install jokot.git-swap
 ```
 
 ### Direct Download (macOS / Linux / Windows)
-Head to the [Releases page](https://github.com/jokot/git-swap/releases) and download the `.tar.gz` (Mac/Linux) or `.zip` (Windows) for your OS and architecture. 
-Extract it and put the `git-swap` executable somewhere in your `PATH` (like `/usr/local/bin`).
+
+If you don't have Homebrew or Winget, you can install `git-swap` via a terminal script.
+
+**macOS / Linux:**
+```bash
+curl -sL https://raw.githubusercontent.com/jokot/git-swap/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/jokot/git-swap/main/install.ps1 -OutFile install.ps1; .\install.ps1
+```
 
 ### From Source (Requires Go)
 
