@@ -16,7 +16,10 @@ Switching **identity** is separate from switching **credentials**. On a single h
 ## Install
 
 ### macOS / Linux (Homebrew)
-*Coming soon! (Requires a separate homebrew-tap repository).*
+
+```bash
+brew install jokot/tap/git-swap
+```
 
 ### Direct Download (macOS / Linux / Windows)
 Head to the [Releases page](https://github.com/jokot/git-swap/releases) and download the `.tar.gz` (Mac/Linux) or `.zip` (Windows) for your OS and architecture. 
